@@ -1,0 +1,1856 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>A pyiron workflow to calculate a grain boundary energy using multiple potentials, and compare to literature DFT data. &#8212; pyiron_grain_boundary_segregation_energies</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'pyiron_GB_segregation_energy_example';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="pyiron LAMMPS job" href="README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="README.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo_dark.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/logo_dark.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="README.html">
+                    pyiron LAMMPS job
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">A pyiron workflow to calculate a grain boundary energy using multiple potentials, and compare to literature DFT data.</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://mybinder.org/v2/gh/materialdigital/pyiron_grain_boundary_segregation_energies/master?urlpath=lab/tree/pyiron_GB_segregation_energy_example.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch onBinder"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img src="_static/images/logo_binder.svg">
+  </span>
+<span class="btn__text-container">Binder</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/pyiron_GB_segregation_energy_example.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>A pyiron workflow to calculate a grain boundary energy using multiple potentials, and compare to literature DFT data.</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="a-pyiron-workflow-to-calculate-a-grain-boundary-energy-using-multiple-potentials-and-compare-to-literature-dft-data">
+<h1>A pyiron workflow to calculate a grain boundary energy using multiple potentials, and compare to literature DFT data.<a class="headerlink" href="#a-pyiron-workflow-to-calculate-a-grain-boundary-energy-using-multiple-potentials-and-compare-to-literature-dft-data" title="Permalink to this heading">#</a></h1>
+<p>This notebook <strong>doesn’t</strong> work out of the box if you haven’t configured LAMMPS for pyiron</p>
+<p>conda install -c conda-forge lammps</p>
+<p>OR</p>
+<p>mamba install -c conda-forge lammps</p>
+<p>In the python environment in which you are running pyiron</p>
+<p>WARNING: In practice/production you should configure a compiled LAMMPS executable that is optimised for your cluster!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyiron.project</span> <span class="kn">import</span> <span class="n">Project</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">ase.lattice.cubic</span> <span class="kn">import</span> <span class="n">BodyCenteredCubic</span> <span class="k">as</span> <span class="n">bcc</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">stack</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.ase</span> <span class="kn">import</span> <span class="n">AseAtomsAdaptor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span>
+
+<span class="kn">from</span> <span class="nn">pyiron.atomistics.structure.atoms</span> <span class="kn">import</span> <span class="n">ase_to_pyiron</span><span class="p">,</span> <span class="n">pymatgen_to_pyiron</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "33539e50c218473187a0c83499df8eaf", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_vacuum</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">vacuum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds padding to a slab or 2D material.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure (Structure): Structure to add vacuum to</span>
+<span class="sd">        vacuum (float): Vacuum thickness to add in Angstroms</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Structure object with vacuum added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">struct</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">specie</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span>
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+    <span class="n">lattice</span><span class="o">.</span><span class="n">setflags</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">lattice_C</span> <span class="o">=</span> <span class="n">lattice</span>
+    <span class="n">lattice_C</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">vacuum</span>
+    <span class="n">struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice_C</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">struct</span><span class="o">.</span><span class="n">translate_sites</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">struct</span><span class="p">)),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">vacuum</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="n">frac_coords</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">struct</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pr</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="s2">&quot;GB_calcs&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Create the structure that we’re going to use:
+a <span class="math notranslate nohighlight">\(\Sigma 3 [1 \bar{1}0](111)\)</span> Fe GB</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">surface1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">surface2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">rotation_axis</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">element</span> <span class="o">=</span> <span class="s2">&quot;Fe&quot;</span>
+<span class="n">lc</span> <span class="o">=</span> <span class="mf">2.8318488966083</span>
+<span class="n">GB_name</span> <span class="o">=</span> <span class="s2">&quot;S3-RA110-S1-11&quot;</span>
+
+<span class="c1"># The minimum required length of the cell.</span>
+<span class="n">req_length</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="n">v1</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">,</span><span class="n">surface1</span><span class="p">))</span>
+<span class="n">v2</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">,</span><span class="n">surface2</span><span class="p">))</span> 
+
+<span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="n">req_length</span><span class="p">:</span>
+    <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+    <span class="n">slab1</span> <span class="o">=</span> <span class="n">bcc</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">latticeconstant</span><span class="o">=</span><span class="n">lc</span><span class="p">,</span><span class="n">directions</span><span class="o">=</span><span class="p">[</span><span class="n">rotation_axis</span><span class="p">,</span><span class="n">v1</span><span class="p">,</span><span class="n">surface1</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">])</span>
+    <span class="n">slab2</span> <span class="o">=</span> <span class="n">bcc</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">latticeconstant</span><span class="o">=</span><span class="n">lc</span><span class="p">,</span><span class="n">directions</span><span class="o">=</span><span class="p">[</span><span class="n">rotation_axis</span><span class="p">,</span><span class="n">v2</span><span class="p">,</span><span class="n">surface2</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="p">])</span>
+
+    <span class="n">gb</span> <span class="o">=</span> <span class="n">stack</span><span class="p">(</span><span class="n">slab1</span><span class="p">,</span> <span class="n">slab2</span><span class="p">)</span>
+    <span class="n">slab</span> <span class="o">=</span> <span class="n">stack</span><span class="p">(</span><span class="n">slab1</span><span class="p">,</span> <span class="n">slab1</span><span class="p">)</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">cell</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="c1"># Rattle the gb structure using rattle in ASE to perturb symmetry</span>
+    <span class="n">gb</span><span class="o">.</span><span class="n">rattle</span><span class="p">()</span>
+    <span class="n">slab</span><span class="o">.</span><span class="n">rattle</span><span class="p">()</span>
+    
+    <span class="n">slab_pmg</span> <span class="o">=</span> <span class="n">add_vacuum</span><span class="p">(</span><span class="n">AseAtomsAdaptor</span><span class="p">()</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="n">slab</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">gb_pmg</span> <span class="o">=</span> <span class="n">add_vacuum</span><span class="p">(</span><span class="n">AseAtomsAdaptor</span><span class="p">()</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="n">gb</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="n">gb_pmg</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">slab_pmg</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>For the purposes of segregation, we need to create a set of GBs with a segregant (here it is P) substituted at various sites near the GB.</p>
+<p>Create the slab structure for a reference, in this case subsitute 1 P atom in to the slab bcc cell for a reference chemical potential</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slab_pmg_P</span> <span class="o">=</span> <span class="n">slab_pmg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">slab_pmg_P</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;P&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mid_point</span> <span class="o">=</span> <span class="n">gb_pmg</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="n">mid_point</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>22.16717158899204
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We just need to set some arbitrary threshold past which we don&#39;t compute the segregation energy of that site</span>
+<span class="c1"># In practice, it is safe to set this to be less than 6 angstrom away from the GB</span>
+<span class="n">threshold</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">structure_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">structure_name_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">structure_dist_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gb_pmg</span><span class="p">):</span>
+    <span class="n">GB_seg_struct</span> <span class="o">=</span> <span class="n">gb_pmg</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">dist_GB</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">mid_point</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dist_GB</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="n">GB_seg_struct</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;P&quot;</span>
+        <span class="n">structure_name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GB_P_%s_d_%.2f&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">dist_GB</span><span class="p">))</span>
+        <span class="n">structure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GB_seg_struct</span><span class="p">)</span>
+        <span class="n">structure_dist_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist_GB</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Create the pyiron job, assign the structure to the job.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">job</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">create_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="n">pr</span><span class="o">.</span><span class="n">job_type</span><span class="o">.</span><span class="n">Lammps</span><span class="p">,</span> <span class="n">job_name</span><span class="o">=</span><span class="s1">&#39;Fe_S3_GB&#39;</span><span class="p">)</span>
+
+<span class="n">job</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">pymatgen_to_pyiron</span><span class="p">(</span><span class="n">structure_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We need to see the potentials, pyiron has an inbuilt potential database</p>
+<p>It automatically finds the applicable potentials given the structure provided.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">job</span><span class="o">.</span><span class="n">list_potentials</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;2004--Ackland-G-J--Fe-P--LAMMPS--ipr1&#39;,
+ &#39;2012--Ko-W-S--Fe-P--LAMMPS--ipr1&#39;,
+ &#39;EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005&#39;,
+ &#39;MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">run_lammps_calc</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">potential</span><span class="p">):</span>
+    <span class="n">job</span> <span class="o">=</span> <span class="n">pr</span><span class="o">.</span><span class="n">create_job</span><span class="p">(</span><span class="n">job_type</span><span class="o">=</span><span class="n">pr</span><span class="o">.</span><span class="n">job_type</span><span class="o">.</span><span class="n">Lammps</span><span class="p">,</span> <span class="n">job_name</span><span class="o">=</span><span class="n">job_name</span><span class="p">)</span>
+    <span class="n">job</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
+    <span class="n">job</span><span class="o">.</span><span class="n">potential</span> <span class="o">=</span> <span class="n">potential</span>
+    <span class="n">job</span><span class="o">.</span><span class="n">calc_minimize</span><span class="p">(</span><span class="n">pressure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+    <span class="n">job</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">delete_existing_job</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">job</span><span class="p">[</span><span class="s1">&#39;output/generic/energy_tot&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">potentials_tested</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">list_potentials</span><span class="p">()</span>
+<span class="n">E_seg_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">potential</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">potentials_tested</span><span class="p">):</span>
+    <span class="n">E_seg_list_potential</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">struct</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure_list</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">E_pure_GB</span> <span class="o">=</span> <span class="n">run_lammps_calc</span><span class="p">(</span><span class="n">pymatgen_to_pyiron</span><span class="p">(</span><span class="n">gb_pmg</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;S3_PureGB_</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">potential</span><span class="p">)</span>
+                <span class="n">E_pure_SLAB</span> <span class="o">=</span> <span class="n">run_lammps_calc</span><span class="p">(</span><span class="n">pymatgen_to_pyiron</span><span class="p">(</span><span class="n">slab_pmg</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;S3_PureSLAB_</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">potential</span><span class="p">)</span>
+                <span class="n">E_SLAB_P</span> <span class="o">=</span> <span class="n">run_lammps_calc</span><span class="p">(</span><span class="n">pymatgen_to_pyiron</span><span class="p">(</span><span class="n">slab_pmg_P</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;S3_segSLAB_</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">potential</span><span class="p">)</span>
+            <span class="n">E_GB_P</span> <span class="o">=</span> <span class="n">run_lammps_calc</span><span class="p">(</span><span class="n">pymatgen_to_pyiron</span><span class="p">(</span><span class="n">struct</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;S3_segGB_</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">structure_name_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">potential</span><span class="p">)</span>
+            <span class="c1"># Formula for segregation energy is E_seg = E_seg_GB - E_pure_GB - (E_sol_SLAB - E_pure_SLAB)</span>
+            <span class="n">E_seg</span> <span class="o">=</span> <span class="n">E_GB_P</span> <span class="o">-</span> <span class="n">E_pure_GB</span> <span class="o">-</span> <span class="p">(</span><span class="n">E_SLAB_P</span> <span class="o">-</span> <span class="n">E_pure_SLAB</span><span class="p">)</span>
+            <span class="n">E_seg_list_potential</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E_seg</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">E_seg_list_potential</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">E_seg_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E_seg_list_potential</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:07:53,473 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_PureGB_0
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_PureGB_0 was saved and received the ID: 1760
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:07:54,324 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_PureSLAB_0
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_PureSLAB_0 was saved and received the ID: 1761
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:07:55,141 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_segSLAB_0
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segSLAB_0 was saved and received the ID: 1762
+The job S3_segGB_0_GB_P_28_d_5d72 was saved and received the ID: 1763
+The job S3_segGB_0_GB_P_29_d_5d72 was saved and received the ID: 1764
+The job S3_segGB_0_GB_P_30_d_4d91 was saved and received the ID: 1765
+The job S3_segGB_0_GB_P_31_d_4d91 was saved and received the ID: 1766
+The job S3_segGB_0_GB_P_32_d_4d09 was saved and received the ID: 1767
+The job S3_segGB_0_GB_P_33_d_4d09 was saved and received the ID: 1768
+The job S3_segGB_0_GB_P_34_d_3d27 was saved and received the ID: 1769
+The job S3_segGB_0_GB_P_35_d_3d27 was saved and received the ID: 1770
+The job S3_segGB_0_GB_P_36_d_2d45 was saved and received the ID: 1771
+The job S3_segGB_0_GB_P_37_d_2d45 was saved and received the ID: 1772
+The job S3_segGB_0_GB_P_38_d_1d63 was saved and received the ID: 1773
+The job S3_segGB_0_GB_P_39_d_1d63 was saved and received the ID: 1774
+The job S3_segGB_0_GB_P_40_d_0d82 was saved and received the ID: 1775
+The job S3_segGB_0_GB_P_41_d_0d82 was saved and received the ID: 1776
+The job S3_segGB_0_GB_P_42_d_0d00 was saved and received the ID: 1777
+The job S3_segGB_0_GB_P_43_d_0d00 was saved and received the ID: 1778
+The job S3_segGB_0_GB_P_44_d_0d82 was saved and received the ID: 1779
+The job S3_segGB_0_GB_P_45_d_0d82 was saved and received the ID: 1780
+The job S3_segGB_0_GB_P_46_d_1d63 was saved and received the ID: 1781
+The job S3_segGB_0_GB_P_47_d_1d64 was saved and received the ID: 1782
+The job S3_segGB_0_GB_P_48_d_2d45 was saved and received the ID: 1783
+The job S3_segGB_0_GB_P_49_d_2d45 was saved and received the ID: 1784
+The job S3_segGB_0_GB_P_50_d_3d27 was saved and received the ID: 1785
+The job S3_segGB_0_GB_P_51_d_3d27 was saved and received the ID: 1786
+The job S3_segGB_0_GB_P_52_d_4d09 was saved and received the ID: 1787
+The job S3_segGB_0_GB_P_53_d_4d09 was saved and received the ID: 1788
+The job S3_segGB_0_GB_P_54_d_4d91 was saved and received the ID: 1789
+The job S3_segGB_0_GB_P_55_d_4d91 was saved and received the ID: 1790
+The job S3_segGB_0_GB_P_56_d_5d72 was saved and received the ID: 1791
+The job S3_segGB_0_GB_P_57_d_5d72 was saved and received the ID: 1792
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:18,471 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_PureGB_1
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_PureGB_1 was saved and received the ID: 1793
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:19,066 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_PureSLAB_1
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_PureSLAB_1 was saved and received the ID: 1794
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:19,552 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_segSLAB_1
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segSLAB_1 was saved and received the ID: 1795
+The job S3_segGB_1_GB_P_28_d_5d72 was saved and received the ID: 1796
+The job S3_segGB_1_GB_P_29_d_5d72 was saved and received the ID: 1797
+The job S3_segGB_1_GB_P_30_d_4d91 was saved and received the ID: 1798
+The job S3_segGB_1_GB_P_31_d_4d91 was saved and received the ID: 1799
+The job S3_segGB_1_GB_P_32_d_4d09 was saved and received the ID: 1800
+The job S3_segGB_1_GB_P_33_d_4d09 was saved and received the ID: 1801
+The job S3_segGB_1_GB_P_34_d_3d27 was saved and received the ID: 1802
+The job S3_segGB_1_GB_P_35_d_3d27 was saved and received the ID: 1803
+The job S3_segGB_1_GB_P_36_d_2d45 was saved and received the ID: 1804
+The job S3_segGB_1_GB_P_37_d_2d45 was saved and received the ID: 1805
+The job S3_segGB_1_GB_P_38_d_1d63 was saved and received the ID: 1806
+The job S3_segGB_1_GB_P_39_d_1d63 was saved and received the ID: 1807
+The job S3_segGB_1_GB_P_40_d_0d82 was saved and received the ID: 1808
+The job S3_segGB_1_GB_P_41_d_0d82 was saved and received the ID: 1809
+The job S3_segGB_1_GB_P_42_d_0d00 was saved and received the ID: 1810
+The job S3_segGB_1_GB_P_43_d_0d00 was saved and received the ID: 1811
+The job S3_segGB_1_GB_P_44_d_0d82 was saved and received the ID: 1812
+The job S3_segGB_1_GB_P_45_d_0d82 was saved and received the ID: 1813
+The job S3_segGB_1_GB_P_46_d_1d63 was saved and received the ID: 1814
+The job S3_segGB_1_GB_P_47_d_1d64 was saved and received the ID: 1815
+The job S3_segGB_1_GB_P_48_d_2d45 was saved and received the ID: 1816
+The job S3_segGB_1_GB_P_49_d_2d45 was saved and received the ID: 1817
+The job S3_segGB_1_GB_P_50_d_3d27 was saved and received the ID: 1818
+The job S3_segGB_1_GB_P_51_d_3d27 was saved and received the ID: 1819
+The job S3_segGB_1_GB_P_52_d_4d09 was saved and received the ID: 1820
+The job S3_segGB_1_GB_P_53_d_4d09 was saved and received the ID: 1821
+The job S3_segGB_1_GB_P_54_d_4d91 was saved and received the ID: 1822
+The job S3_segGB_1_GB_P_55_d_4d91 was saved and received the ID: 1823
+The job S3_segGB_1_GB_P_56_d_5d72 was saved and received the ID: 1824
+The job S3_segGB_1_GB_P_57_d_5d72 was saved and received the ID: 1825
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:40,290 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_PureGB_2
+2023-08-13 18:08:40,476 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:40,477 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:40,624 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:40,624 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_PureGB_2 was saved and received the ID: 1826
+The job S3_segGB_2_GB_P_29_d_5d72 was saved and received the ID: 1827
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:40,796 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:40,797 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:40,965 - pyiron_log - WARNING - Job aborted
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_30_d_4d91 was saved and received the ID: 1828
+The job S3_segGB_2_GB_P_31_d_4d91 was saved and received the ID: 1829
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:40,967 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:41,118 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:41,119 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:41,282 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:41,283 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_32_d_4d09 was saved and received the ID: 1830
+The job S3_segGB_2_GB_P_33_d_4d09 was saved and received the ID: 1831
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:41,448 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:41,450 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:41,616 - pyiron_log - WARNING - Job aborted
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_34_d_3d27 was saved and received the ID: 1832
+The job S3_segGB_2_GB_P_35_d_3d27 was saved and received the ID: 1833
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:41,617 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:41,789 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:41,789 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_36_d_2d45 was saved and received the ID: 1834
+The job S3_segGB_2_GB_P_37_d_2d45 was saved and received the ID: 1835
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:41,961 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:41,962 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:42,125 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:42,125 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:42,284 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:42,285 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_38_d_1d63 was saved and received the ID: 1836
+The job S3_segGB_2_GB_P_39_d_1d63 was saved and received the ID: 1837
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:42,443 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:42,444 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_40_d_0d82 was saved and received the ID: 1838
+The job S3_segGB_2_GB_P_41_d_0d82 was saved and received the ID: 1839
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:42,631 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:42,632 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:42,804 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:42,805 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_42_d_0d00 was saved and received the ID: 1840
+The job S3_segGB_2_GB_P_43_d_0d00 was saved and received the ID: 1841
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:42,980 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:42,981 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:43,140 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:43,141 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_44_d_0d82 was saved and received the ID: 1842
+The job S3_segGB_2_GB_P_45_d_0d82 was saved and received the ID: 1843
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:43,304 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:43,306 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:43,465 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:43,466 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:43,616 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:43,617 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_46_d_1d63 was saved and received the ID: 1844
+The job S3_segGB_2_GB_P_47_d_1d64 was saved and received the ID: 1845
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:43,782 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:43,784 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:43,941 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:43,942 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_48_d_2d45 was saved and received the ID: 1846
+The job S3_segGB_2_GB_P_49_d_2d45 was saved and received the ID: 1847
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:44,107 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:44,108 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_50_d_3d27 was saved and received the ID: 1848
+The job S3_segGB_2_GB_P_51_d_3d27 was saved and received the ID: 1849
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:44,286 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:44,287 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:44,458 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:44,458 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:44,621 - pyiron_log - WARNING - Job aborted
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_52_d_4d09 was saved and received the ID: 1850
+The job S3_segGB_2_GB_P_53_d_4d09 was saved and received the ID: 1851
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:44,623 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:44,836 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:44,837 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:45,000 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:45,001 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_54_d_4d91 was saved and received the ID: 1852
+The job S3_segGB_2_GB_P_55_d_4d91 was saved and received the ID: 1853
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:45,173 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:45,174 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.001 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_2_GB_P_56_d_5d72 was saved and received the ID: 1854
+The job S3_segGB_2_GB_P_57_d_5d72 was saved and received the ID: 1855
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:45,345 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:45,346 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim EAM_Dynamo_AcklandMendelevSrolovitz_2004_FeP__MO_884343146310_005
+
+2023-08-13 18:08:45,366 - pyiron_log - WARNING - No HDF5 file found - remove database entry and create new job! S3_PureGB_3
+2023-08-13 18:08:45,521 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:45,522 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:45,676 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:45,677 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.004 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_PureGB_3 was saved and received the ID: 1856
+The job S3_segGB_3_GB_P_29_d_5d72 was saved and received the ID: 1857
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:45,852 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:45,853 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:46,012 - pyiron_log - WARNING - Job aborted
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_30_d_4d91 was saved and received the ID: 1858
+The job S3_segGB_3_GB_P_31_d_4d91 was saved and received the ID: 1859
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:46,013 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:46,230 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:46,231 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:46,393 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:46,394 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_32_d_4d09 was saved and received the ID: 1860
+The job S3_segGB_3_GB_P_33_d_4d09 was saved and received the ID: 1861
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:46,553 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:46,553 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_34_d_3d27 was saved and received the ID: 1862
+The job S3_segGB_3_GB_P_35_d_3d27 was saved and received the ID: 1863
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:46,738 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:46,739 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:46,895 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:46,896 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:47,055 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:47,056 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_36_d_2d45 was saved and received the ID: 1864
+The job S3_segGB_3_GB_P_37_d_2d45 was saved and received the ID: 1865
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:47,229 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:47,230 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_38_d_1d63 was saved and received the ID: 1866
+The job S3_segGB_3_GB_P_39_d_1d63 was saved and received the ID: 1867
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:47,400 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:47,402 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:47,570 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:47,571 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_40_d_0d82 was saved and received the ID: 1868
+The job S3_segGB_3_GB_P_41_d_0d82 was saved and received the ID: 1869
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:47,761 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:47,762 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:48,001 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:48,002 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_42_d_0d00 was saved and received the ID: 1870
+The job S3_segGB_3_GB_P_43_d_0d00 was saved and received the ID: 1871
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:48,209 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:48,210 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:48,392 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:48,393 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_44_d_0d82 was saved and received the ID: 1872
+The job S3_segGB_3_GB_P_45_d_0d82 was saved and received the ID: 1873
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:48,589 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:48,590 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:48,801 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:48,802 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_46_d_1d63 was saved and received the ID: 1874
+The job S3_segGB_3_GB_P_47_d_1d64 was saved and received the ID: 1875
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:48,985 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:48,986 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:49,171 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:49,172 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_48_d_2d45 was saved and received the ID: 1876
+The job S3_segGB_3_GB_P_49_d_2d45 was saved and received the ID: 1877
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:49,373 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:49,374 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:49,579 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:49,580 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_50_d_3d27 was saved and received the ID: 1878
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:49,809 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:49,811 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_51_d_3d27 was saved and received the ID: 1879
+The job S3_segGB_3_GB_P_52_d_4d09 was saved and received the ID: 1880
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:49,993 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:49,994 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:50,203 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:50,204 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_53_d_4d09 was saved and received the ID: 1881
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:50,438 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:50,439 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_54_d_4d91 was saved and received the ID: 1882
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:50,684 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:50,685 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_55_d_4d91 was saved and received the ID: 1883
+The job S3_segGB_3_GB_P_56_d_5d72 was saved and received the ID: 1884
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2023-08-13 18:08:50,879 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:50,881 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+
+2023-08-13 18:08:51,059 - pyiron_log - WARNING - Job aborted
+2023-08-13 18:08:51,060 - pyiron_log - WARNING - LAMMPS (28 Mar 2023 - Update 1)
+Reading data file ...
+  orthogonal box = (0 0 0) to (4.0048391 6.9365848 44.334343)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  84 atoms
+  read_data CPU = 0.000 seconds
+ERROR: KIM ModelCreate failed (src/KIM/pair_kim.cpp:828)
+Last command: pair_style kim MEAM_LAMMPS_KoJimLee_2012_FeP__MO_179420363944_000
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The job S3_segGB_3_GB_P_57_d_5d72 was saved and received the ID: 1885
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">E_seg_list</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="n">potentials_tested</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">structure_name_list</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>2004--Ackland-G-J--Fe-P--LAMMPS--ipr1</th>
+      <th>2012--Ko-W-S--Fe-P--LAMMPS--ipr1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>GB_P_28_d_5.72</th>
+      <td>0.003667</td>
+      <td>-1.107854</td>
+    </tr>
+    <tr>
+      <th>GB_P_29_d_5.72</th>
+      <td>0.003667</td>
+      <td>-1.107854</td>
+    </tr>
+    <tr>
+      <th>GB_P_30_d_4.91</th>
+      <td>0.009409</td>
+      <td>0.046456</td>
+    </tr>
+    <tr>
+      <th>GB_P_31_d_4.91</th>
+      <td>0.009409</td>
+      <td>0.046456</td>
+    </tr>
+    <tr>
+      <th>GB_P_32_d_4.09</th>
+      <td>0.032903</td>
+      <td>-0.007275</td>
+    </tr>
+    <tr>
+      <th>GB_P_33_d_4.09</th>
+      <td>0.032903</td>
+      <td>-0.007275</td>
+    </tr>
+    <tr>
+      <th>GB_P_34_d_3.27</th>
+      <td>-1.144830</td>
+      <td>-1.105626</td>
+    </tr>
+    <tr>
+      <th>GB_P_35_d_3.27</th>
+      <td>-1.144830</td>
+      <td>-1.105626</td>
+    </tr>
+    <tr>
+      <th>GB_P_36_d_2.45</th>
+      <td>0.180020</td>
+      <td>0.113790</td>
+    </tr>
+    <tr>
+      <th>GB_P_37_d_2.45</th>
+      <td>0.180020</td>
+      <td>0.113790</td>
+    </tr>
+    <tr>
+      <th>GB_P_38_d_1.63</th>
+      <td>-0.378476</td>
+      <td>-0.189858</td>
+    </tr>
+    <tr>
+      <th>GB_P_39_d_1.63</th>
+      <td>-0.378476</td>
+      <td>-0.189858</td>
+    </tr>
+    <tr>
+      <th>GB_P_40_d_0.82</th>
+      <td>-1.152108</td>
+      <td>-1.104952</td>
+    </tr>
+    <tr>
+      <th>GB_P_41_d_0.82</th>
+      <td>-1.152108</td>
+      <td>-1.104952</td>
+    </tr>
+    <tr>
+      <th>GB_P_42_d_0.00</th>
+      <td>0.165460</td>
+      <td>0.077128</td>
+    </tr>
+    <tr>
+      <th>GB_P_43_d_0.00</th>
+      <td>0.165460</td>
+      <td>0.077128</td>
+    </tr>
+    <tr>
+      <th>GB_P_44_d_0.82</th>
+      <td>-1.152077</td>
+      <td>-1.104842</td>
+    </tr>
+    <tr>
+      <th>GB_P_45_d_0.82</th>
+      <td>-1.152078</td>
+      <td>-1.104842</td>
+    </tr>
+    <tr>
+      <th>GB_P_46_d_1.63</th>
+      <td>-0.378394</td>
+      <td>-0.189240</td>
+    </tr>
+    <tr>
+      <th>GB_P_47_d_1.64</th>
+      <td>-0.378394</td>
+      <td>-0.189240</td>
+    </tr>
+    <tr>
+      <th>GB_P_48_d_2.45</th>
+      <td>0.179999</td>
+      <td>0.113546</td>
+    </tr>
+    <tr>
+      <th>GB_P_49_d_2.45</th>
+      <td>0.179999</td>
+      <td>0.113546</td>
+    </tr>
+    <tr>
+      <th>GB_P_50_d_3.27</th>
+      <td>-1.144728</td>
+      <td>-1.103879</td>
+    </tr>
+    <tr>
+      <th>GB_P_51_d_3.27</th>
+      <td>-1.144728</td>
+      <td>-1.103879</td>
+    </tr>
+    <tr>
+      <th>GB_P_52_d_4.09</th>
+      <td>0.032953</td>
+      <td>-0.006490</td>
+    </tr>
+    <tr>
+      <th>GB_P_53_d_4.09</th>
+      <td>0.032953</td>
+      <td>-0.006490</td>
+    </tr>
+    <tr>
+      <th>GB_P_54_d_4.91</th>
+      <td>0.009393</td>
+      <td>0.046186</td>
+    </tr>
+    <tr>
+      <th>GB_P_55_d_4.91</th>
+      <td>0.009393</td>
+      <td>0.046186</td>
+    </tr>
+    <tr>
+      <th>GB_P_56_d_5.72</th>
+      <td>0.003740</td>
+      <td>-1.100800</td>
+    </tr>
+    <tr>
+      <th>GB_P_57_d_5.72</th>
+      <td>0.003740</td>
+      <td>-1.100800</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># Assuming you have df defined</span>
+
+<span class="c1"># Extract the data for the first two potentials</span>
+<span class="n">potential_1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">potentials_tested</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">potential_2</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">potentials_tested</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+<span class="c1"># Plotting</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">potential_1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">potentials_tested</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">potential_2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">potentials_tested</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;E_seg = 0&#39;</span><span class="p">)</span>  <span class="c1"># Horizontal reference line</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Structure Names&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Segregation Energy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Segregation Energies for First Two Potentials&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Adding grid lines</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/afc6288d30f6a5f2138471967d9afddb5fa7f40c5ce872b9c090723750424e27.png" src="_images/afc6288d30f6a5f2138471967d9afddb5fa7f40c5ce872b9c090723750424e27.png" />
+</div>
+</div>
+<p>Construct a dataframe which contains the information about GB energy, and their errors with respect to a DFT computed value.</p>
+<p>The GB energy of 1.58 J/m^2 is from the value computed in this study:</p>
+<p>Mai, H.L., Cui, X.Y., Scheiber, D., Romaner, L. and Ringer, S.P., 2022. The segregation of transition metals to iron grain boundaries and their effects on cohesion. Acta materialia, 231, p.117902.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;potential&#39;</span><span class="p">:</span> <span class="n">potentials_tested</span><span class="p">,</span> <span class="s1">&#39;GB_energy&#39;</span><span class="p">:</span> <span class="n">GB_energy_list</span><span class="p">}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">GB_energy_DFT</span> <span class="o">=</span> <span class="mf">1.58</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;err_DFT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">GB_energy_DFT</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;GB_energy&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;rel_err_DFT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">((</span><span class="n">GB_energy_DFT</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;GB_energy&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">GB_energy_DFT</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;GB_energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">GB_energy</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;GB_energy&quot;</span><span class="p">)</span>
+<span class="n">df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">NameError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;potential&#39;</span><span class="p">:</span> <span class="n">potentials_tested</span><span class="p">,</span> <span class="s1">&#39;GB_energy&#39;</span><span class="p">:</span> <span class="n">GB_energy_list</span><span class="p">}</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="n">GB_energy_DFT</span> <span class="o">=</span> <span class="mf">1.58</span>
+
+<span class="ne">NameError</span>: name &#39;GB_energy_list&#39; is not defined
+</pre></div>
+</div>
+</div>
+</div>
+<p>Order the potentials by the minimum error wrt. DFT!</p>
+<p>Now we have a good idea of how to search for an empirical potential which best captures the GB energetics of a specific grain boundary.</p>
+<p>You can see that there are some potentials that are very, very accurate at predicting this specific GB energy.</p>
+<p>For a real study you should consider not just a single GB, but validate it across multiple GBs and ideally the specific phenomena you want to study.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;err_DFT&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>potential</th>
+      <th>GB_energy</th>
+      <th>err_DFT</th>
+      <th>rel_err_DFT</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">pyiron LAMMPS job</p>
+      </div>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By pyiron
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
